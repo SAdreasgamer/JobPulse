@@ -13,11 +13,13 @@ const manifestPath = fileURLToPath(new URL("../dist/manifest.json", import.meta.
 const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
 
 const serverUrl = process.env.VITE_SERVER_URL ?? "http://localhost:3456";
-const allowed = new Set([
-  `${serverUrl}/api/*`,
-  "https://www.linkedin.com/*",
-  "https://mail.google.com/*",
-]);
+const builtinHosts = JSON.parse(
+  readFileSync(
+    fileURLToPath(new URL("../src/adapters/builtin/hosts.json", import.meta.url)),
+    "utf8",
+  ),
+);
+const allowed = new Set([`${serverUrl}/api/*`, ...builtinHosts]);
 
 const hosts = manifest.host_permissions ?? [];
 const unexpected = hosts.filter((h) => !allowed.has(h));
