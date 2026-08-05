@@ -1,0 +1,143 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Least-privilege default; jobs that need more (none currently do) declare it
+# themselves.
+permissions:
+  contents: read
+
+jobs:
+  api:
+    name: API (ruff, mypy, pytest, dependency audit)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.11.28"
+      - run: uv sync
+      - run: uv run ruff format --check
+      - run: uv run ruff check
+      - run: uv run mypy
+      - run: uv run pytest -q
+      # Resolved-dependency vulnerability check (pip-audit via uv's own
+      # resolution, so it reflects exactly what uv sync installed).
+      - run: uv export --no-hashes -o "$RUNNER_TEMP/requirements-audit.txt"
+      - run: uvx pip-audit -r "$RUNNER_TEMP/requirements-audit.txt"
+
+  ts:
+    name: ts (vp check, typecheck, test, build, dependency audit, manifest hosts, markdown)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: ".node-version"
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm audit --prod --audit-level=high
+      # Dev tooling runs with the app's privileges, so audit it too. Advisory
+      # only: these findings are usually transitive and unfixable here.
+      - run: pnpm audit --audit-level=moderate
+        continue-on-error: true
+      - run: pnpm exec vp check
+      - run: pnpm exec vp run -r typecheck
+      - run: pnpm exec vp run -r test
+      - run: pnpm exec vp run -r build
+      # A fresh checkout never has the gitignored private adapter overlay
+      # (apps/extension/src/adapters/local/), so the build above is already
+      # the public build this assertion needs — no extra isolation required
+      # in CI. Verified locally in a scratch `git worktree add` (which also
+      # lacks the overlay, since it was never committed) against both a
+      # deliberately overlay-polluted build (correctly rejected) and a clean
+      # one (passed); see the E1 ledger entry for details.
+      - run: node apps/extension/scripts/assert-manifest-hosts.mjs
+      # Prose wrapping is mechanical, so a stale document fails here rather than
+      # in review. `pnpm run format:md` is the fix.
+      - run: pnpm run check:md
+
+  contracts:
+    name: contracts (generated API types drift, product version consistency)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.11.28"
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: ".node-version"
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: uv sync
+        working-directory: apps/api
+      # Fails if the committed types drifted from an API change that wasn't
+      # regenerated. (The funnel/text cross-language fixtures are guarded the same way
+      # by the API pytest job, which writes-and-asserts them.)
+      - run: bash packages/shared/scripts/gen-api-types.sh --check
+      # This job is the one with both toolchains, so it owns the check that the
+      # root VERSION, the built manifest, and the API metadata still agree.
+      - run: pnpm run build:ext
+      - run: bash scripts/check-version.sh
+
+  secrets:
+    name: secret scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The history scan needs both sides of the PR/push range. The
+          # snapshot scan below still checks the exact tree being merged.
+          fetch-depth: 0
+          # Nothing after checkout needs repository credentials.
+          persist-credentials: false
+      # Run the checksum-pinned CLI directly so scanning needs no PR API access
+      # and no third-party action receives GITHUB_TOKEN.
+      - name: Install gitleaks
+        env:
+          GITLEAKS_VERSION: "8.30.1"
+          GITLEAKS_SHA256: "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb"
+        run: |
+          set -euo pipefail
+          curl -fsSL -o "$RUNNER_TEMP/gitleaks.tar.gz" \
+            "https://github.com/gitleaks/gitleaks/releases/download/v$GITLEAKS_VERSION/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          echo "$GITLEAKS_SHA256  $RUNNER_TEMP/gitleaks.tar.gz" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/gitleaks.tar.gz" -C "$RUNNER_TEMP" gitleaks
+          "$RUNNER_TEMP/gitleaks" version
+      - name: Scan pull request commits
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          "$RUNNER_TEMP/gitleaks" git --redact --no-banner --verbose \
+            --log-opts="$BASE_SHA..$HEAD_SHA" .
+      - name: Scan pushed commits
+        if: github.event_name == 'push'
+        env:
+          BASE_SHA: ${{ github.event.before }}
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          if [[ "$BASE_SHA" == "0000000000000000000000000000000000000000" ]]; then
+            LOG_OPTS="--max-count=1 $HEAD_SHA"
+          else
+            LOG_OPTS="$BASE_SHA..$HEAD_SHA"
+          fi
+          "$RUNNER_TEMP/gitleaks" git --redact --no-banner --verbose \
+            --log-opts="$LOG_OPTS" .
+      - name: Scan tracked snapshot
+        run: |
+          "$RUNNER_TEMP/gitleaks" dir . --redact --no-banner --verbose

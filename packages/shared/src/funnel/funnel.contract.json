@@ -1,0 +1,90 @@
+{
+  "statuses": [
+    "new",
+    "seen",
+    "to_apply",
+    "applied",
+    "in_process",
+    "offered",
+    "skipped",
+    "closed",
+    "withdrawn",
+    "rejected",
+    "ghosted"
+  ],
+  "active": [
+    "new",
+    "seen",
+    "to_apply",
+    "applied",
+    "in_process",
+    "offered"
+  ],
+  "terminal": [
+    "skipped",
+    "closed",
+    "withdrawn",
+    "rejected",
+    "ghosted"
+  ],
+  "forwardMoves": {
+    "new": [
+      "seen",
+      "to_apply",
+      "applied",
+      "in_process",
+      "offered",
+      "skipped",
+      "closed",
+      "withdrawn",
+      "rejected"
+    ],
+    "seen": [
+      "to_apply",
+      "applied",
+      "in_process",
+      "offered",
+      "skipped",
+      "closed",
+      "withdrawn",
+      "rejected"
+    ],
+    "to_apply": [
+      "applied",
+      "in_process",
+      "offered",
+      "skipped",
+      "closed",
+      "withdrawn",
+      "rejected"
+    ],
+    "applied": [
+      "in_process",
+      "offered",
+      "skipped",
+      "closed",
+      "withdrawn",
+      "rejected",
+      "ghosted"
+    ],
+    "in_process": [
+      "offered",
+      "skipped",
+      "closed",
+      "withdrawn",
+      "rejected",
+      "ghosted"
+    ],
+    "offered": [
+      "skipped",
+      "closed",
+      "withdrawn",
+      "rejected"
+    ],
+    "skipped": [],
+    "closed": [],
+    "withdrawn": [],
+    "rejected": [],
+    "ghosted": []
+  }
+}

@@ -1,0 +1,165 @@
+# Local gate for the FastAPI backend (apps/api/) and the TS workspace
+# (apps/, packages/). Python hooks run the uv-pinned tools, so versions come
+# from uv.lock; TS hooks run through `vp`, so versions come from
+# pnpm-lock.yaml — no separate hook envs to drift either side.
+#
+# Two stages, split by what they cost when something actually changed:
+#   pre-commit — formatters, linters, typecheck. Sub-second warm.
+#   pre-push   — the full suite: tests, builds, mypy, pytest.
+#
+# Every hook states its stages explicitly. An omitted `stages` means *all* of
+# them, which would let the fixers below rewrite files during a push: the fix
+# would land in the working tree, outside the commits being pushed.
+#
+# The expensive hooks run through `vp run <task>`, whose results are cached in
+# node_modules/.vite/task-cache and keyed on the files each command actually
+# reads. Re-gating untouched code is a replay, not a rerun, so pre-push stays
+# near-instant unless you changed something it covers. Note that only `vp run`
+# uses that cache — a direct `vp check` or `vp build` always executes in full.
+#
+# Install once:  uv run --directory apps/api pre-commit install
+# (installs both hook types via default_install_hook_types below)
+default_install_hook_types: [pre-commit, pre-push]
+
+repos:
+  - repo: local
+    hooks:
+      # ---- commit only: fixes what it can ----------------------------------
+      # ruff and oxfmt are milliseconds on this tree, and they rewrite files
+      # rather than just reporting, so they run directly instead of as cached
+      # tasks — a replayed fix would be a no-op that leaves the tree unfixed.
+      # Writing is only safe while the commit is still being assembled, so these
+      # stop at pre-commit; the push stage re-checks the same ground in
+      # check-only form (py:format, py:lint, fmt:check).
+      - id: ruff-format
+        name: ruff format
+        entry: uv run --directory apps/api ruff format
+        language: system
+        stages: [pre-commit]
+        types_or: [python, pyi]
+        pass_filenames: false
+
+      - id: ruff-check
+        name: ruff check
+        entry: uv run --directory apps/api ruff check --fix
+        language: system
+        stages: [pre-commit]
+        types_or: [python, pyi]
+        pass_filenames: false
+
+      - id: vp-fmt
+        name: vp fmt (oxfmt)
+        entry: ./node_modules/.bin/vp fmt
+        language: system
+        stages: [pre-commit]
+        files: ^(apps/(extension|web)|packages)/
+        pass_filenames: false
+
+      # Markdown only; .prettierignore keeps it off docs/plans and the overlay.
+      - id: prettier-md
+        name: prettier (markdown)
+        entry: ./node_modules/.bin/prettier --write
+        language: system
+        stages: [pre-commit]
+        types: [markdown]
+
+      # ---- both stages: report only, so they are safe to repeat ------------
+      # The push stage has no lint or typecheck of its own; these are it.
+      - id: vp-lint
+        name: vp lint (cached)
+        entry: ./node_modules/.bin/vp run lint
+        language: system
+        stages: [pre-commit, pre-push]
+        files: ^(apps/(extension|web)|packages)/
+        pass_filenames: false
+
+      - id: vp-typecheck
+        name: vp typecheck (cached)
+        entry: ./node_modules/.bin/vp run typecheck
+        language: system
+        stages: [pre-commit, pre-push]
+        files: ^(apps/(extension|web)|packages)/
+        pass_filenames: false
+
+      # ---- pre-push: everything, cached ------------------------------------
+      # These always_run regardless of which paths changed — a TS-only commit
+      # can still break the contract fixtures the API asserts, and vice
+      # versa. The cache is what makes running the full matrix every push
+      # affordable, so don't add `files:` filters here to speed it up.
+      - id: fmt-check
+        name: oxfmt --check (cached)
+        entry: ./node_modules/.bin/vp run fmt:check
+        language: system
+        stages: [pre-push]
+        always_run: true
+        pass_filenames: false
+
+      - id: vp-test
+        name: vp test (cached)
+        entry: ./node_modules/.bin/vp run test
+        language: system
+        stages: [pre-push]
+        always_run: true
+        pass_filenames: false
+
+      - id: vp-build
+        name: vp build (cached)
+        entry: ./node_modules/.bin/vp run build
+        language: system
+        stages: [pre-push]
+        always_run: true
+        pass_filenames: false
+
+      - id: py-format
+        name: ruff format --check (cached)
+        entry: ./node_modules/.bin/vp run py:format
+        language: system
+        stages: [pre-push]
+        always_run: true
+        pass_filenames: false
+
+      - id: py-lint
+        name: ruff check (cached)
+        entry: ./node_modules/.bin/vp run py:lint
+        language: system
+        stages: [pre-push]
+        always_run: true
+        pass_filenames: false
+
+      - id: py-typecheck
+        name: mypy (strict, cached)
+        entry: ./node_modules/.bin/vp run py:typecheck
+        language: system
+        stages: [pre-push]
+        always_run: true
+        pass_filenames: false
+
+      - id: py-test
+        name: pytest (cached)
+        entry: ./node_modules/.bin/vp run py:test
+        language: system
+        stages: [pre-push]
+        always_run: true
+        pass_filenames: false
+
+      # CI fails a push whose committed API types no longer match the FastAPI
+      # schema, so catch it here instead. The manifest host allowlist is the one
+      # CI check with no counterpart here; apps/extension/scripts/
+      # assert-manifest-hosts.mjs explains why a developer checkout cannot run it.
+      - id: api-drift
+        name: API types drift (cached)
+        entry: ./node_modules/.bin/vp run api:check
+        language: system
+        stages: [pre-push]
+        always_run: true
+        pass_filenames: false
+
+      # Runs after vp-build, which produces the manifest it reads. Local-only in
+      # effect for the tag rules: a CI checkout fetches no tags.
+      - id: version-consistency
+        name: product version consistency
+        entry: bash scripts/check-version.sh
+        language: system
+        stages: [pre-push]
+        always_run: true
+        pass_filenames: false

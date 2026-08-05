@@ -1,0 +1,35 @@
+# JavaScript and build output
+node_modules/
+dist/
+.DS_Store
+
+# Local environment files
+*.local
+.env
+.env.*
+!.env.example
+
+# Python / uv
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local API data
+apps/api/**/*.db
+apps/api/**/*.db-*
+apps/api/**/*.db.sync*
+apps/api/**/backups/
+apps/api/script-output/
+
+# Private overlays — absent from the public build (see docs/PRIVATE.md)
+apps/extension/src/adapters/local/
+apps/web/src/platforms/local/
+apps/api/scripts/local/
+
+# Execution plans and their ledgers carry internal orchestration narration and private
+# context. They stay tracked here (this rule cannot untrack them), but a clean export
+# extracts them as ordinary working files that its fresh history never stages.
+docs/plans/

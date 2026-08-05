@@ -1,0 +1,65 @@
+[project]
+name = "job-tracker-api"
+# Packaging metadata uv requires, not the product version: the root VERSION file
+# owns that and app/core/version.py is what the API advertises.
+version = "0.1.0"
+description = "Local FastAPI backend for the personal job tracker"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi>=0.140.13",
+    "httpx>=0.28.1",
+    "libsql>=0.1.11",
+    "pyturso>=0.7.1",
+    "pydantic>=2.13.4",
+    "pydantic-settings>=2.14.2",
+    "uvicorn[standard]>=0.52.0",
+]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "httpx2>=2.7.0",
+    "mypy>=2.3.0",
+    "pre-commit>=4.6.1",
+    "pytest>=9.1.1",
+    "ruff>=0.16.0",
+]
+
+[tool.mypy]
+python_version = "3.14"
+files = ["app", "scripts"]
+strict = true
+# libsql/pyturso ship no type stubs; treat them as untyped rather than failing the build.
+[[tool.mypy.overrides]]
+module = ["libsql", "turso.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+# `turso`-marked tests hit a real throwaway Turso DB; keep them out of the default
+# offline run. Opt in with `pytest -m turso` (also needs TURSO_TEST_* in the env).
+addopts = "-m 'not turso'"
+markers = ["turso: integration test against a real Turso DB (needs TURSO_TEST_* env)"]
+
+[tool.ruff]
+line-length = 100
+# Python target is inferred from project.requires-python (>=3.14).
+
+[tool.ruff.format]
+# The codebase is intentionally dense; only wrap on real overflow, don't explode
+# every trailing-comma collection one-item-per-line.
+skip-magic-trailing-comma = true
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["E501"]  # the formatter owns line length; don't nag on long comments/strings
+
+[tool.ruff.lint.isort]
+# Match format.skip-magic-trailing-comma so import grouping stays compact too.
+split-on-trailing-comma = false
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI's dependency markers are designed to be called in argument defaults.
+extend-immutable-calls = ["fastapi.Depends", "fastapi.Query", "fastapi.Path", "fastapi.Body", "fastapi.Header"]

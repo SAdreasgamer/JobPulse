@@ -1,0 +1,28 @@
+{
+  "name": "@job-tracker/shared",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./funnel": "./src/funnel/index.ts",
+    "./api": "./src/api/index.ts",
+    "./api/schema": "./src/api/schema.ts",
+    "./text": "./src/text/index.ts",
+    "./time": "./src/time/index.ts",
+    "./links": "./src/links/index.ts",
+    "./platforms": "./src/platforms/index.ts"
+  },
+  "scripts": {
+    "gen:api": "bash scripts/gen-api-types.sh",
+    "lint": "vp lint",
+    "typecheck": "tsc --noEmit",
+    "test": "vp test"
+  },
+  "devDependencies": {
+    "openapi-typescript": "^7.9.1",
+    "typescript": "^6.0.3",
+    "vite": "catalog:",
+    "vitest": "4.1.10"
+  },
+  "packageManager": "pnpm@11.15.0"
+}

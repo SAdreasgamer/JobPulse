@@ -1,0 +1,8 @@
+{
+  "extends": "../../../.public/apps/web/tsconfig.app.json",
+  "compilerOptions": {
+    "rootDirs": ["src", "../../../.public/apps/web/src"]
+  },
+  "include": ["src/platforms/local/**/*.ts"],
+  "exclude": ["node_modules"]
+}

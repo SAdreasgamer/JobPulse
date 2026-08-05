@@ -1,0 +1,35 @@
+{
+  "name": "job-tracker-extension",
+  "private": true,
+  "description": "Job Tracker browser extension — captures listings and drives the funnel from the sites you browse.",
+  "type": "module",
+  "scripts": {
+    "dev": "vp dev",
+    "build": "vp build",
+    "lint": "vp lint",
+    "typecheck": "tsc --noEmit",
+    "test": "vp test"
+  },
+  "dependencies": {
+    "@job-tracker/shared": "workspace:*",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@crxjs/vite-plugin": "^2.7.1",
+    "@tailwindcss/vite": "^4.3.2",
+    "@types/chrome": "^0.2.2",
+    "@types/node": "^26.1.2",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.4",
+    "@webext-core/fake-browser": "^2.0.1",
+    "jsdom": "^30.0.0",
+    "lucide-static": "^1.27.0",
+    "tailwindcss": "^4.3.2",
+    "typescript": "^6.0.3",
+    "vite": "catalog:",
+    "vitest": "4.1.10"
+  },
+  "packageManager": "pnpm@11.15.0"
+}

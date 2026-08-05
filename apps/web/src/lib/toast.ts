@@ -1,0 +1,63 @@
+import { ApiError } from "@job-tracker/shared/api";
+
+// A tiny framework-agnostic toast store, living outside React so non-component code
+// can raise a toast too — chiefly the QueryClient's global mutation-error handler
+// (main.tsx), which realizes "onError on all mutations" once. Components read it
+// through <Toaster/> via useSyncExternalStore.
+
+export type ToastKind = "error" | "info";
+
+export interface Toast {
+  id: number;
+  kind: ToastKind;
+  message: string;
+}
+
+let toasts: Toast[] = [];
+const listeners = new Set<() => void>();
+let nextId = 1;
+
+function emit() {
+  for (const listener of listeners) listener();
+}
+
+export function subscribeToasts(listener: () => void): () => void {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
+// A stable snapshot: the array reference only changes when the toasts do, so
+// useSyncExternalStore won't loop.
+export function getToasts(): Toast[] {
+  return toasts;
+}
+
+export function dismissToast(id: number) {
+  toasts = toasts.filter((t) => t.id !== id);
+  emit();
+}
+
+// ttl of 0 keeps a toast until dismissed by hand.
+function push(kind: ToastKind, message: string, ttl: number): number {
+  const id = nextId++;
+  toasts = [...toasts, { id, kind, message }];
+  emit();
+  if (ttl > 0) setTimeout(() => dismissToast(id), ttl);
+  return id;
+}
+
+export const toast = {
+  error: (message: string, ttl = 8000) => push("error", message, ttl),
+  info: (message: string, ttl = 6000) => push("info", message, ttl),
+};
+
+// Turn whatever a mutation or fetch threw into a human line. An ApiError carries the
+// server's status and body; anything else falls back to its message.
+export function describeError(err: unknown): string {
+  if (err instanceof ApiError) {
+    const detail = err.message.trim();
+    return detail ? `Request failed (${err.status}): ${detail}` : `Request failed (${err.status})`;
+  }
+  if (err instanceof Error && err.message) return err.message;
+  return "Something went wrong.";
+}

@@ -1,0 +1,22 @@
+# Prettier formats Markdown only; Ruff and oxfmt own Python and TypeScript.
+# The format/check scripts pass an explicit "**/*.md" glob, so this file only
+# has to carve out the Markdown that must not be reformatted.
+
+node_modules/
+**/dist/
+**/.venv/
+apps/api/script-output/
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ruff_cache/
+# Agent scratch space, including any git worktrees created under it.
+.claude/
+
+# Immutable orchestration artifacts, not public documentation.
+docs/plans/
+
+# Gitignored private overlay: not part of the public tree.
+apps/extension/src/adapters/local/
+apps/web/src/platforms/local/
+apps/api/app/core/local/
+apps/api/scripts/local/

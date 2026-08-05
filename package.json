@@ -1,0 +1,27 @@
+{
+  "name": "job-tracker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "prepare": "uv run --directory apps/api pre-commit install || true",
+    "verify:all": "vp run verify",
+    "lint:all": "vp run lint",
+    "typecheck:all": "vp run typecheck",
+    "test:all": "vp run test",
+    "build:all": "vp run build",
+    "build:ext": "vp run -F job-tracker-extension --cache build",
+    "build:web": "vp run -F web --cache build",
+    "dev:web": "vp dev apps/web",
+    "format:md": "prettier --write \"**/*.md\"",
+    "check:md": "prettier --check \"**/*.md\""
+  },
+  "devDependencies": {
+    "prettier": "3.9.6",
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
+  },
+  "engines": {
+    "node": "^22.22.2 || ^24.15.0 || >=26.0.0"
+  },
+  "packageManager": "pnpm@11.15.0"
+}

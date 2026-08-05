@@ -1,0 +1,178 @@
+{
+  "note": "Frozen case table for parseRelativeAge (packages/shared/src/time/index.ts). The TS implementation is replayed against it in time.test.ts; any port to another language must be tested against this same file. A relative age means whatever this table says it means — do not hand-port the rule without it. `at: null` means the text carries no usable age and the caller must skip rather than guess. Precision is always \"estimated\": the source text never carried more resolution than its unit.",
+  "rule": {
+    "months_years": "calendar subtraction in UTC, clamped to the last day of the target month",
+    "weeks_days_hours_minutes": "elapsed duration subtraction",
+    "output": "ISO-8601 UTC with milliseconds, Z suffix"
+  },
+  "cases": [
+    {
+      "why": "elapsed days",
+      "text": "17 days ago",
+      "captured_at": "2026-07-03T12:00:00Z",
+      "at": "2026-06-16T12:00:00.000Z",
+      "precision": "estimated"
+    },
+    {
+      "why": "elapsed weeks cross a year boundary",
+      "text": "3 weeks ago",
+      "captured_at": "2026-01-05T00:00:00Z",
+      "at": "2025-12-15T00:00:00.000Z",
+      "precision": "estimated"
+    },
+    {
+      "why": "elapsed hours cross midnight",
+      "text": "an hour ago",
+      "captured_at": "2026-07-03T00:30:00Z",
+      "at": "2026-07-02T23:30:00.000Z",
+      "precision": "estimated"
+    },
+    {
+      "why": "elapsed minutes",
+      "text": "5 minutes ago",
+      "captured_at": "2026-07-03T00:02:00Z",
+      "at": "2026-07-02T23:57:00.000Z",
+      "precision": "estimated"
+    },
+    {
+      "why": "calendar months, no clamping needed",
+      "text": "2 months ago",
+      "captured_at": "2026-07-03T12:00:00Z",
+      "at": "2026-05-03T12:00:00.000Z",
+      "precision": "estimated"
+    },
+    {
+      "why": "month-end clamp: 31 Mar minus 1 month is 28 Feb, never 3 Mar",
+      "text": "1 month ago",
+      "captured_at": "2026-03-31T09:30:00Z",
+      "at": "2026-02-28T09:30:00.000Z",
+      "precision": "estimated"
+    },
+    {
+      "why": "month-end clamp in a leap year lands on 29 Feb",
+      "text": "1 month ago",
+      "captured_at": "2024-03-31T09:30:00Z",
+      "at": "2024-02-29T09:30:00.000Z",
+      "precision": "estimated"
+    },
+    {
+      "why": "month-end clamp, 31-day month to 30-day month",
+      "text": "1 month ago",
+      "captured_at": "2026-07-31T00:00:00Z",
+      "at": "2026-06-30T00:00:00.000Z",
+      "precision": "estimated"
+    },
+    {
+      "why": "month-end clamp across many months, seconds preserved",
+      "text": "6 months ago",
+      "captured_at": "2026-08-31T23:59:59Z",
+      "at": "2026-02-28T23:59:59.000Z",
+      "precision": "estimated"
+    },
+    {
+      "why": "leap day minus 1 year clamps to 28 Feb",
+      "text": "1 year ago",
+      "captured_at": "2024-02-29T00:00:00Z",
+      "at": "2023-02-28T00:00:00.000Z",
+      "precision": "estimated"
+    },
+    {
+      "why": "12 months and 1 year are the same operation",
+      "text": "12 months ago",
+      "captured_at": "2024-02-29T00:00:00Z",
+      "at": "2023-02-28T00:00:00.000Z",
+      "precision": "estimated"
+    },
+    {
+      "why": "non-leap 28 Feb minus 1 year does not gain a day",
+      "text": "1 year ago",
+      "captured_at": "2025-02-28T08:00:00Z",
+      "at": "2024-02-28T08:00:00.000Z",
+      "precision": "estimated"
+    },
+    {
+      "why": "leap day minus 4 years is a leap day again",
+      "text": "4 years ago",
+      "captured_at": "2024-02-29T00:00:00Z",
+      "at": "2020-02-29T00:00:00.000Z",
+      "precision": "estimated"
+    },
+    {
+      "why": "LinkedIn's capped form: the + is ignored, the number is taken literally",
+      "text": "30+ days ago",
+      "captured_at": "2026-07-03T12:00:00Z",
+      "at": "2026-06-03T12:00:00.000Z",
+      "precision": "estimated"
+    },
+    {
+      "why": "scrape prefix is tolerated",
+      "text": "Reposted 2 weeks ago",
+      "captured_at": "2026-07-03T12:00:00Z",
+      "at": "2026-06-19T12:00:00.000Z",
+      "precision": "estimated"
+    },
+    {
+      "why": "bare age phrase without the word ago",
+      "text": "3 days",
+      "captured_at": "2026-07-03T12:00:00Z",
+      "at": "2026-06-30T12:00:00.000Z",
+      "precision": "estimated"
+    },
+    {
+      "why": "'a day ago' counts as one",
+      "text": "a day ago",
+      "captured_at": "2026-07-03T12:00:00Z",
+      "at": "2026-07-02T12:00:00.000Z",
+      "precision": "estimated"
+    },
+    {
+      "why": "keyword form: no elapsed time",
+      "text": "Just now",
+      "captured_at": "2026-07-03T12:00:00Z",
+      "at": "2026-07-03T12:00:00.000Z",
+      "precision": "estimated"
+    },
+    {
+      "why": "keyword form: yesterday is 24h elapsed, crossing a month end",
+      "text": "Yesterday",
+      "captured_at": "2026-03-01T06:00:00Z",
+      "at": "2026-02-28T06:00:00.000Z",
+      "precision": "estimated"
+    },
+    {
+      "why": "a deadline has the same shape pointing the other way — must not parse",
+      "text": "30 days remaining",
+      "captured_at": "2026-07-03T12:00:00Z",
+      "at": null,
+      "precision": null
+    },
+    {
+      "why": "no number, no unit",
+      "text": "Posted recently",
+      "captured_at": "2026-07-03T12:00:00Z",
+      "at": null,
+      "precision": null
+    },
+    {
+      "why": "empty text",
+      "text": "",
+      "captured_at": "2026-07-03T12:00:00Z",
+      "at": null,
+      "precision": null
+    },
+    {
+      "why": "unparseable capture instant — the anchor is what makes the age meaningful",
+      "text": "2 months ago",
+      "captured_at": "not-a-date",
+      "at": null,
+      "precision": null
+    },
+    {
+      "why": "an absurd count is a mis-scrape, not a posting age",
+      "text": "99999 days ago",
+      "captured_at": "2026-07-03T12:00:00Z",
+      "at": null,
+      "precision": null
+    }
+  ]
+}

@@ -1,0 +1,109 @@
+{
+  "cases": [
+    {
+      "input": "Example Company N.V.",
+      "company": "example company",
+      "title": "example company nv"
+    },
+    {
+      "input": "Example Trading Bank N.V.",
+      "company": "example trading",
+      "title": "example trading bank nv"
+    },
+    {
+      "input": "Example Employer Nederland",
+      "company": "example employer",
+      "title": "example employer nederland"
+    },
+    {
+      "input": "Example Advisory Netherlands - English",
+      "company": "example advisory",
+      "title": "example advisory netherlands english"
+    },
+    {
+      "input": "Example Software Benelux B.V.",
+      "company": "example software",
+      "title": "example software benelux bv"
+    },
+    {
+      "input": "Bank of Example",
+      "company": "bank of example",
+      "title": "bank of example"
+    },
+    {
+      "input": "Nederland",
+      "company": "nederland",
+      "title": "nederland"
+    },
+    {
+      "input": "Example People",
+      "company": "example people",
+      "title": "example people"
+    },
+    {
+      "input": "Example Retail, Inc.",
+      "company": "example retail",
+      "title": "example retail inc"
+    },
+    {
+      "input": "The Example Staffing Group",
+      "company": "example staffing",
+      "title": "the example staffing group"
+    },
+    {
+      "input": "  Example   Co  ",
+      "company": "example",
+      "title": "example co"
+    },
+    {
+      "input": "Example.com B.V.",
+      "company": "examplecom",
+      "title": "examplecom bv"
+    },
+    {
+      "input": "Example&Partner",
+      "company": "example partner",
+      "title": "example partner"
+    },
+    {
+      "input": "O'Example Media",
+      "company": "oexample media",
+      "title": "oexample media"
+    },
+    {
+      "input": "Café Corp",
+      "company": "caf",
+      "title": "caf corp"
+    },
+    {
+      "input": "Ελληνικά",
+      "company": null,
+      "title": null
+    },
+    {
+      "input": "Backend Engineer (Remote)",
+      "company": "backend engineer remote",
+      "title": "backend engineer remote"
+    },
+    {
+      "input": "Senior  Backend / Engineer",
+      "company": "senior backend engineer",
+      "title": "senior backend engineer"
+    },
+    {
+      "input": "DevOps (Remote)",
+      "company": "devops remote",
+      "title": "devops remote"
+    },
+    {
+      "input": "",
+      "company": null,
+      "title": null
+    },
+    {
+      "input": null,
+      "company": null,
+      "title": null
+    }
+  ]
+}

@@ -1,0 +1,160 @@
+@import "tailwindcss";
+
+/* System leaves data-theme unset, while explicit choices override the media
+   preference in either direction. main.tsx applies this before React mounts. */
+:root {
+  color-scheme: light;
+  --bg: #fff;
+  --fg: #333;
+  --fg-muted: #666;
+  --fg-soft: #777;
+  --fg-faint: #888;
+  --btn-fg: #555;
+  --border: #ccc;
+  --border-strong: #888;
+  --border-subtle: #eee;
+  --border-popover: #e0e0e0;
+  --surface: #fff;
+  --surface-raised: #fafafa;
+  --surface-hover: #f0f0f0;
+  --surface-sunken: #f6f6f6;
+  --accent: #2557a7;
+  --selection: #eef4ff;
+  --selection-border: #9db8ff;
+  --primary: #222;
+  --primary-hover: #000;
+  --primary-disabled: #999;
+  --success: #1a7f37;
+  --danger: #a33;
+  --danger-bg: #fdecec;
+  --danger-border: #f0b8b8;
+  --focus: #6b8fd4;
+  --shadow: rgb(0 0 0 / 0.12);
+  --shadow-strong: rgb(0 0 0 / 0.2);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+    --bg: #1c1d21;
+    --fg: #e4e4e6;
+    --fg-muted: #b7b7bb;
+    --fg-soft: #a2a2a7;
+    --fg-faint: #8c8c92;
+    --btn-fg: #c8c8cc;
+    --border: #3a3c42;
+    --border-strong: #55575e;
+    --border-subtle: #2b2d33;
+    --border-popover: #3a3c42;
+    --surface: #26272c;
+    --surface-raised: #212227;
+    --surface-hover: #313339;
+    --surface-sunken: #1f2024;
+    --accent: #7aa7ff;
+    --selection: #2a3550;
+    --selection-border: #46608f;
+    --primary: #3f6fd6;
+    --primary-hover: #5480e0;
+    --primary-disabled: #33415e;
+    --success: #2ea043;
+    --danger: #f2938c;
+    --danger-bg: #3a2422;
+    --danger-border: #5e3330;
+    --focus: #6ea8fe;
+    --shadow: rgb(0 0 0 / 0.45);
+    --shadow-strong: rgb(0 0 0 / 0.55);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #1c1d21;
+  --fg: #e4e4e6;
+  --fg-muted: #b7b7bb;
+  --fg-soft: #a2a2a7;
+  --fg-faint: #8c8c92;
+  --btn-fg: #c8c8cc;
+  --border: #3a3c42;
+  --border-strong: #55575e;
+  --border-subtle: #2b2d33;
+  --border-popover: #3a3c42;
+  --surface: #26272c;
+  --surface-raised: #212227;
+  --surface-hover: #313339;
+  --surface-sunken: #1f2024;
+  --accent: #7aa7ff;
+  --selection: #2a3550;
+  --selection-border: #46608f;
+  --primary: #3f6fd6;
+  --primary-hover: #5480e0;
+  --primary-disabled: #33415e;
+  --success: #2ea043;
+  --danger: #f2938c;
+  --danger-bg: #3a2422;
+  --danger-border: #5e3330;
+  --focus: #6ea8fe;
+  --shadow: rgb(0 0 0 / 0.45);
+  --shadow-strong: rgb(0 0 0 / 0.55);
+}
+
+@theme inline {
+  --color-popup-bg: var(--bg);
+  --color-popup-fg: var(--fg);
+  --color-popup-muted: var(--fg-muted);
+  --color-popup-soft: var(--fg-soft);
+  --color-popup-faint: var(--fg-faint);
+  --color-popup-button: var(--btn-fg);
+  --color-popup-border: var(--border);
+  --color-popup-border-strong: var(--border-strong);
+  --color-popup-border-subtle: var(--border-subtle);
+  --color-popup-popover: var(--border-popover);
+  --color-popup-surface: var(--surface);
+  --color-popup-raised: var(--surface-raised);
+  --color-popup-hover: var(--surface-hover);
+  --color-popup-sunken: var(--surface-sunken);
+  --color-popup-accent: var(--accent);
+  --color-popup-selection: var(--selection);
+  --color-popup-selection-border: var(--selection-border);
+  --color-popup-primary: var(--primary);
+  --color-popup-primary-hover: var(--primary-hover);
+  --color-popup-primary-disabled: var(--primary-disabled);
+  --color-popup-success: var(--success);
+  --color-popup-danger: var(--danger);
+  --color-popup-danger-bg: var(--danger-bg);
+  --color-popup-danger-border: var(--danger-border);
+  --color-popup-focus: var(--focus);
+  --color-popup-shadow: var(--shadow);
+  --color-popup-shadow-strong: var(--shadow-strong);
+}
+
+@layer base {
+  body {
+    width: 328px;
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 13px;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

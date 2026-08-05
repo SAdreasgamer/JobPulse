@@ -1,0 +1,95 @@
+@import "tailwindcss";
+
+/* Class-based dark mode: the theme is toggled by adding `.dark` to <html>
+   (see the pre-paint script in index.html and lib/theme.ts), not the default
+   media query — so a manual override can win over the system preference. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Semantic color tokens. Components reference these roles (bg-surface,
+   text-ink-muted, border-line, …), never raw slate shades, so the whole UI
+   re-themes by swapping the values below. `:root` is light; `.dark` overrides. */
+:root {
+  --canvas: #f8fafc; /* page background */
+  --sunken: #f1f5f9; /* recessed wells (column drop zones) */
+  --surface: #ffffff; /* cards, inputs, menus */
+  --surface-hover: #e2e8f0; /* hover / drag-over / raised chips */
+  --line: #e2e8f0; /* default borders, dividers */
+  --line-strong: #94a3b8; /* hover / focus borders, rings */
+  --ink: #0f172a; /* primary text */
+  --ink-soft: #334155; /* secondary text */
+  --ink-muted: #475569; /* quietest TEXT role — labels, meta, timestamps (7.4:1) */
+  --ink-faint: #64748b; /* NON-TEXT only: icons, rules, disabled glyphs */
+  --ink-subtle: #94a3b8; /* NON-TEXT only: separators, decorative dots */
+  --overlay: rgb(15 23 42 / 0.4); /* drawer backdrop */
+  --accent: #2563eb; /* narrowed-view ring, focus accents */
+}
+
+.dark {
+  --canvas: #0f172a; /* slate-900 */
+  --sunken: #0b1120; /* ~slate-950 */
+  --surface: #1e293b; /* slate-800 */
+  --surface-hover: #334155; /* slate-700 */
+  --line: #334155; /* slate-700 */
+  --line-strong: #64748b; /* slate-500 */
+  --ink: #f1f5f9; /* slate-100 */
+  --ink-soft: #cbd5e1; /* slate-300 */
+  --ink-muted: #94a3b8; /* slate-400 — 7.0:1 on --canvas */
+  --ink-faint: #64748b; /* slate-500 — 3.78:1: NON-TEXT only */
+  --ink-subtle: #475569; /* slate-600 — NON-TEXT only */
+  --overlay: rgb(0 0 0 / 0.5);
+  --accent: #60a5fa;
+}
+
+/* Register the tokens as Tailwind colors so `bg-surface`, `text-ink`, etc. are
+   generated. `inline` inlines the var reference, so the `.dark` overrides above
+   flow through at runtime. */
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-sunken: var(--sunken);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-faint: var(--ink-faint);
+  --color-ink-subtle: var(--ink-subtle);
+  --color-overlay: var(--overlay);
+  --color-accent: var(--accent);
+}
+
+/* Two dense steps below Tailwind's `text-xs`, in rem so they scale with the
+   browser's font-size setting — the 40 hardcoded `text-[Npx]` values they replace
+   did not, and pinned a user who had raised their default back down to 9–11px.
+   `prose` is the floor for anything a user READS (listing descriptions, document
+   bodies, note prose); `micro` is the deliberately smaller step for label-shaped
+   text only — chips, counts, timestamps. Nothing smaller exists; if a new size is
+   wanted, the answer is one of these two. */
+@theme {
+  --text-micro: 0.6875rem; /* 11px @ default root — chips, counts, timestamps */
+  --text-micro--line-height: 1rem;
+  --text-prose: 0.8125rem; /* 13px @ default root — anything read as prose */
+  --text-prose--line-height: 1.25rem;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--canvas);
+  color: var(--ink-soft);
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+}

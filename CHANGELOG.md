@@ -1,0 +1,33 @@
+# Changelog
+
+All notable user-facing changes to Job Tracker are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow [SemVer](https://semver.org/spec/v2.0.0.html).
+
+One version covers the whole product. The extension, the dashboard, and the server ship from the same commit and share the version in the repository root [`VERSION`](VERSION) file, so any user-visible change in any of them determines the next bump: patch for fixes, minor for a new capability, major for a breaking change. Individual commits do not bump it — the bump happens once while preparing a release, and the matching whole-repository commit is tagged `vX.Y.Z`. See the [development guide](docs/DEVELOPMENT.md#releases-and-versions) for the full rule.
+
+## [Unreleased]
+
+## [1.0.0] - 2026-07-29
+
+Initial public release.
+
+### Added
+
+- Chrome extension that captures LinkedIn listings while you browse and recognizes LinkedIn job emails in Gmail, with integrated triage across supported pages and the popup: star, hide, block a company, add notes, and move through the application funnel.
+- Kanban dashboard for applications, with history, documents, custom fields, duplicate hints, attention indicators and ordering, starring, filtering, description copying, and reopening terminal jobs.
+- Keyboard-first extension popup for search, fast add, detail, and settings.
+- Configurable keyword signals backed by `chrome.storage`, safe by default: persistent automatic actions are off until explicitly enabled.
+- Opt-in full-context search diagnostics, off by default, with temporary or persistent capture, a clearable log, and retention capped at 1,000 rows.
+- Local-first FastAPI server over SQLite, with optional Turso synchronization in embedded-replica or local-first mode.
+- Automatic job closure derived from listing availability: it considers every linked listing, survives listing reopening, relinking, and merging, and never overrides a manual closure.
+- One-command `scripts/setup.sh`, `scripts/dev.sh`, and `scripts/check.sh`.
+- Private per-user adapters kept in a sibling private repository and synced into a gitignored local overlay by `scripts/sync-private.sh`.
+- Documentation set: user README, [`PRIVACY.md`](PRIVACY.md), [`SECURITY.md`](SECURITY.md), [`CONTRIBUTING.md`](CONTRIBUTING.md), [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md), and [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+- CI secret scanning, dependency vulnerability checks, SHA-pinned actions, and an automated assertion that a public build's manifest requests only the configured API origin plus the LinkedIn and Gmail host patterns.
+
+### Security
+
+- Verified per-connection foreign-key enforcement, an orphan pre-flight where supported by the database driver, atomic migrations, and collision-safe listing identifiers.
+- Localhost threat model with a CORS allowlist, a DNS-rebinding guard, and an optional API key; see [`SECURITY.md`](SECURITY.md).
+
+[Unreleased]: https://github.com/Muatasim-Aswad/job-tracker/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/Muatasim-Aswad/job-tracker/releases/tag/v1.0.0
