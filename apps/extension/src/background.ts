@@ -257,3 +257,25 @@ chrome.runtime.onMessage.addListener((msg: BridgeRequest, sender, sendResponse) 
 
   return true;
 });
+
+// ── Context Menu: Open Dashboard ─────────────────────────────────────────────
+const DASHBOARD_URL = process.env.VITE_DASHBOARD_URL ?? "http://localhost:5173";
+
+function setupContextMenu() {
+  chrome.contextMenus.removeAll(() => {
+    chrome.contextMenus.create({
+      id: "open-dashboard",
+      title: "Open Job Tracker Dashboard",
+      contexts: ["action"],
+    });
+  });
+}
+
+chrome.runtime.onInstalled.addListener(setupContextMenu);
+chrome.runtime.onStartup.addListener(setupContextMenu);
+
+chrome.contextMenus.onClicked.addListener((info) => {
+  if (info.menuItemId === "open-dashboard") {
+    void chrome.tabs.create({ url: DASHBOARD_URL });
+  }
+});

@@ -447,6 +447,17 @@ export function Popup() {
               dangerouslySetInnerHTML={{ __html: ICON.settings }}
             />
             <button
+              className={
+                "flex size-8 shrink-0 items-center justify-center rounded-md border border-popup-border bg-popup-surface p-0 text-sm font-semibold text-popup-button transition-colors hover:bg-popup-hover " +
+                FOCUS
+              }
+              title="Open Job Tracker Dashboard (http://localhost:5173)"
+              aria-label="Open Dashboard"
+              onClick={() => void chrome.tabs.create({ url: "http://localhost:5173" })}
+            >
+              ↗
+            </button>
+            <button
               id="add-toggle"
               className={
                 mode === "add"
