@@ -1,40 +1,43 @@
-# ⚡ JobPulse AI
+# ⚡ JobPulse
 
-> **Silent Autonomous Job Tracking & Privacy-First Local AI Co-Pilot**  
-> _Built with FastAPI, React, WebSockets, Chrome MV3 Extension & Local LLM (Phi-3.5 via Ollama)._
+> **Automated Job Application Tracking & Evaluation Platform**  
+> _Built with Python, FastAPI, WebSockets, SQLite, Ollama, TypeScript, and Chrome Extension (MV3)._
 
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.140+-009688.svg?style=flat&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com) [![React](https://img.shields.io/badge/React-18+-61DAFB.svg?style=flat&logo=react&logoColor=black)](https://react.dev) [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6.svg?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/) [![Ollama](<https://img.shields.io/badge/LLM-Phi--3.5%20(Ollama)-black.svg?style=flat&logo=ollama&logoColor=white>)](https://ollama.com) [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.140+-009688.svg?style=flat&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com) [![Python](https://img.shields.io/badge/Python-3.14+-3776AB.svg?style=flat&logo=python&logoColor=white)](https://www.python.org/) [![React](https://img.shields.io/badge/React-18+-61DAFB.svg?style=flat&logo=react&logoColor=black)](https://react.dev) [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6.svg?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/) [![Ollama](<https://img.shields.io/badge/LLM-Phi--3.5%20(Ollama)-black.svg?style=flat&logo=ollama&logoColor=white>)](https://ollama.com) [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ---
 
 ## 🌟 Overview
 
-**JobPulse AI** transforms how software engineers track and optimize their job applications. Instead of manually filling out spreadsheets or project boards, **JobPulse AI** runs silently in your browser, auto-detecting when you submit an application across major ATS platforms (Greenhouse, Lever, Workday, Indeed, Ashby, etc.) and updating your local real-time dashboard instantly via WebSockets.
+**JobPulse** is a client-server system designed to automate job application tracking and candidate evaluation without manual spreadsheet entry.
 
-It includes an **on-device AI Co-Pilot powered by Phi-3.5 (via Ollama)** that scores your candidate fit, flags risks, and streams custom cover letters in real-time — **100% free, local, and zero data leaving your machine.**
+- **Browser Extension (MV3)**: Automatically detects when you submit a job application on platforms like LinkedIn, Greenhouse, and Lever, extracting job metadata (title, company, listing ID) and relaying it to the backend.
+- **FastAPI Backend & WebSockets**: Provides REST APIs to store application records and maintains an active WebSocket hub to push real-time status updates to connected dashboard clients without page reloads.
+- **Relational Storage (SQLite)**: Tracks applications across distinct lifecycle stages (`applied`, `interview`, `offer`, `rejected`) using an event-history table that preserves the full timeline of each transition.
+- **Local AI Evaluation (Ollama / Phi-3.5)**: Evaluates job descriptions against candidate profiles locally on-device to calculate match scores and highlight required skills without sending data to external APIs.
 
 ---
 
-## 🔥 Key Superpowers
+## 🛠️ Core Capabilities
 
-### 🤖 1. Silent Autonomous Application Watcher
+### 1. Browser Application Ingestion
 
-- **Zero-Click Capture**: Sits silently while you apply on **Greenhouse, Lever, Workday, Indeed, Ashby**, or custom ATS portals.
-- **Event Relay Bridge**: Detects application confirmation screens, extracts job metadata (title, company, listing ID), and dispatches lifecycle events.
-- **Real-Time WebSocket Sync**: Broadcasts application updates directly to your local React Kanban board with zero latency.
+- **Automated Capture**: Listens for application submissions across **Greenhouse, Lever, Workday, Indeed, Ashby**, and LinkedIn.
+- **Confirmation & DOM Parsing**: Uses DOM observers and URL patterns to verify submission success screens and extract job metadata.
+- **Service Worker Relay**: Relays payloads through a Manifest V3 background service worker, cleanly handling browser security and extension origins.
 
-### 🧠 2. Privacy-First Local AI Assistant (Phi-3.5)
+### 2. Real-Time State Synchronization
 
-- **⚡ Fit Score Engine**: Analyzes your local JSON profile against full job descriptions, calculating a 0–100 match score with matched vs. missing skill breakdowns.
-- **🚦 Smart Apply Signal**: Evaluates job descriptions to highlight **Green Flags** vs. **Red Flags** and gives a clear `Apply` | `Consider` | `Skip` recommendation.
-- **📝 Real-time Cover Letter Generator**: Generates candidate-tailored cover letters using Server-Sent Events (SSE) streaming.
-- **🔒 100% On-Device & Free**: Runs locally on CPU/GPU via **Ollama & Phi-3.5**. Zero API keys, zero cloud costs, zero telemetry.
+- **WebSocket Broadcast Hub**: Pushes instant state transitions down an open WebSocket channel directly to the dashboard.
+- **Lifecycle Funnel**: Tracks jobs through structured stages: `New` ➔ `Seen` ➔ `To Apply` ➔ `Applied` ➔ `In Process` ➔ `Offered` (with terminal states: `Rejected`, `Withdrawn`, `Closed`, `Ghosted`).
+- **Audit History**: Preserves past events in an immutable event-log table rather than overwriting historical data.
 
-### 📊 3. Full-Lifecycle Kanban Dashboard
+### 3. On-Device AI Candidate Fit (Phi-3.5)
 
-- **Lifecycle Funnel**: Move jobs seamlessly across `Bookmarked` ➔ `Applied` ➔ `Screening` ➔ `Interview` ➔ `Offer` ➔ `Archived`.
-- **Live Connection Monitor**: Pulsing real-time WebSocket connection status indicator (`🟢 Watching`).
-- **Duplicate & Repost Matcher**: Heuristic detection prevents duplicate tracking when the same job is re-posted under a different URL.
+- **Match Score Engine**: Compares your candidate profile with job descriptions to compute a 0–100 match score with matched vs. missing skill lists.
+- **Apply Recommendation**: Evaluates descriptions to flag green flags, red flags, and provide an `Apply` | `Consider` | `Skip` recommendation.
+- **Cover Letter Generation**: Generates targeted cover letters using Server-Sent Events (SSE) streaming.
+- **Local & Private**: Runs completely on your machine via **Ollama**. Zero API keys, zero cloud costs, and zero external data sharing.
 
 ---
 
@@ -85,11 +88,11 @@ flowchart TD
 
 | Component | Tech Stack | Highlights |
 | --- | --- | --- |
-| **Backend** | Python 3.14, FastAPI, PyTurso / LibSQL, Pydantic v2, HTTPX | Async REST API, Pydantic schemas, custom SQLite/Turso ORM layer, robust lifecycle state transitions |
+| **Backend** | Python 3.14, FastAPI, SQLite / LibSQL, Pydantic v2, HTTPX | Async REST API, Pydantic schemas, raw SQL repository layer, robust lifecycle state transitions |
 | **Real-Time** | WebSockets, FastAPI `ConnectionHub` | Asynchronous event broadcasting with auto-reconnecting exponential backoff client hook |
 | **AI / LLM** | Ollama, Phi-3.5 SLM, Server-Sent Events (SSE) | Custom async LLM provider abstraction, structured JSON prompt engineering, SSE streaming endpoints |
 | **Frontend** | React 18, TypeScript, Vite, TailwindCSS, TanStack Query | Responsive Kanban board, dark/light theme, custom drawer components, focus traps, optimistic updates |
-| **Extension** | Chrome Extension Manifest V3, TypeScript, WebNavigation API | Content script adapters, mutation observers, background service worker event bridge |
+| **Extension** | Chrome Extension Manifest V3, TypeScript, WebNavigation API | Content script adapters, DOM observers, background service worker event bridge |
 
 ---
 
@@ -161,7 +164,7 @@ pnpm --filter job-tracker-extension build
 
 ## 📄 Privacy & Data Ownership
 
-JobPulse AI is **100% self-hosted and single-user**.
+JobPulse is **100% self-hosted and single-user**.
 
 - Application records remain in your local SQLite database (`apps/api/jobtracker.db`).
 - All AI processing occurs locally via your local Ollama instance.
